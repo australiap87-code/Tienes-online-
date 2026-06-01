@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAMALEÓN — Personaliza tu estilo</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0a0a;--paper:#f5f0e8;--accent:#e84c1e;--accent2:#f5c842;
+  --muted:#7a7065;--card:#fffdf8;--border:#d8d0c0;
+  --album:#4a6fa5;--album-light:#e8f0fb;--album-dark:#2d4a6e;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.6}
+
+header{background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:64px;position:sticky;top:0;z-index:100;border-bottom:3px solid var(--accent)}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.1em;color:var(--paper)}
+.logo span{color:var(--accent)}
+.cart-btn{background:var(--accent);border:none;color:#fff;font-family:'Space Mono',monospace;font-size:.8rem;font-weight:700;padding:.5rem 1.2rem;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:background .2s,transform .1s}
+.cart-btn:hover{background:#c73c12;transform:translateY(-1px)}
+.cart-count{background:var(--accent2);color:var(--ink);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700}
+
+.hero{padding:1.5rem 2rem 1.5rem;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:end}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,4.5rem);line-height:.9;letter-spacing:.02em}
+.hero-title em{color:var(--accent);font-style:normal}
+.hero-sub{font-size:1.05rem;color:var(--muted);margin-top:1rem;line-height:1.6;max-width:420px}
+.hero-steps{display:flex;flex-direction:column;gap:.6rem}
+.step{display:flex;align-items:center;gap:.8rem;font-family:'Space Mono',monospace;font-size:.8rem;color:var(--muted);border:1px solid var(--border);padding:.6rem 1rem;background:var(--card);transition:border-color .2s}
+.step.active{border-color:var(--accent);color:var(--ink);background:#fff}
+.step-num{width:24px;height:24px;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--border);color:var(--muted)}
+.step.active .step-num{background:var(--accent);color:#fff}
+
+.main{max-width:1200px;margin:0 auto;padding:1rem 2rem}
+.section-label{font-family:'Space Mono',monospace;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.divider{border:none;border-top:1px solid var(--border);margin:2rem 0}
+
+.product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:3rem}
+.product-card{border:2px solid var(--border);background:var(--card);padding:1rem;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.product-card::before{content:'';position:absolute;inset:0;background:var(--accent);transform:translateY(100%);transition:transform .3s ease;z-index:0}
+.product-card:hover::before,.product-card.selected::before{transform:translateY(0)}
+.product-card>*{position:relative;z-index:1}
+.product-card:hover .pc-title,.product-card.selected .pc-title{color:#fff}
+.product-card:hover .pc-price,.product-card.selected .pc-price{color:var(--accent2)}
+.product-card:hover .pc-desc,.product-card.selected .pc-desc{color:rgba(255,255,255,.8)}
+.pc-icon{font-size:1.8rem;margin-bottom:.6rem;display:block}
+.pc-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.05em;transition:color .2s}
+.pc-desc{font-size:.8rem;color:var(--muted);margin-top:.3rem;transition:color .2s}
+.pc-price{font-family:'Space Mono',monospace;font-size:.9rem;color:var(--accent);margin-top:.8rem;font-weight:700;transition:color .2s}
+
+#variant-section{display:none;margin-bottom:3rem}
+.variant-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem}
+.variant-card{border:2px solid var(--border);background:var(--card);padding:1rem;cursor:pointer;transition:all .2s;text-align:center}
+.variant-card.selected{border-color:var(--accent);background:#fff}
+.variant-card:hover{border-color:var(--accent)}
+.variant-img{width:80px;height:80px;margin:0 auto .7rem;display:flex;align-items:center;justify-content:center}
+.variant-name{font-family:'Space Mono',monospace;font-size:.75rem;font-weight:700}
+.variant-extra{font-size:.75rem;color:var(--muted);margin-top:.2rem}
+
+#design-section{display:none;margin-bottom:3rem}
+.studio-layout{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.canvas-area{border:2px solid var(--border);background:#fff;padding:1rem}
+.canvas-toolbar{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center}
+.tool-btn{border:1.5px solid var(--border);background:var(--card);padding:.4rem .8rem;font-family:'Space Mono',monospace;font-size:.7rem;cursor:pointer;transition:all .15s;font-weight:700}
+.tool-btn:hover,.tool-btn.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tool-btn.danger:hover{background:var(--accent);border-color:var(--accent)}
+#drawCanvas{display:block;cursor:crosshair;touch-action:none;width:100%;border:1px solid var(--border)}
+.color-row{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap}
+.color-swatch{width:24px;height:24px;border:2px solid transparent;cursor:pointer;transition:transform .15s;flex-shrink:0}
+.color-swatch.active{border-color:var(--ink);transform:scale(1.2)}
+.color-swatch:hover{transform:scale(1.15)}
+.size-label{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted)}
+input[type="range"]{width:80px;accent-color:var(--accent)}
+.upload-zone{border:2px dashed var(--border);padding:1.5rem;text-align:center;cursor:pointer;transition:border-color .2s;margin-top:.8rem;background:var(--paper);position:relative}
+.upload-zone:hover{border-color:var(--accent)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-zone p{font-size:.85rem;color:var(--muted)}
+.upload-zone strong{font-family:'Space Mono',monospace;font-size:.8rem;color:var(--ink)}
+
+.preview-panel{border:2px solid var(--border);background:#fff;padding:1.5rem;position:sticky;top:80px}
+.preview-title{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.1em;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between}
+.preview-badge{font-family:'Space Mono',monospace;font-size:.65rem;background:var(--accent2);color:var(--ink);padding:.2rem .5rem;font-weight:700}
+.preview-container{position:relative;width:100%;aspect-ratio:1;background:#f8f8f8;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:1rem}
+#previewCanvas{width:100%;height:100%;display:block}
+.preview-info{font-family:'Space Mono',monospace;font-size:.75rem;color:var(--muted);margin-bottom:.5rem}
+.preview-price{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.05em;color:var(--accent)}
+.add-cart-btn{width:100%;background:var(--ink);color:var(--paper);border:none;padding:1rem;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.1em;cursor:pointer;transition:background .2s,transform .1s;margin-top:1rem}
+.add-cart-btn:hover{background:var(--accent);transform:translateY(-2px)}
+.add-cart-btn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;transform:none}
+
+/* ===== ÁLBUM MEJORADO ===== */
+#album-section{display:none;margin-bottom:3rem}
+
+/* wizard tabs */
+.album-wizard{display:flex;gap:0;margin-bottom:1.5rem;border:2px solid var(--border);overflow:hidden}
+.wz-tab{flex:1;padding:.7rem;font-family:'Space Mono',monospace;font-size:.7rem;font-weight:700;text-align:center;cursor:pointer;background:var(--card);color:var(--muted);border:none;border-right:1px solid var(--border);transition:all .2s;position:relative}
+.wz-tab:last-child{border-right:none}
+.wz-tab.done{background:#e8f5e9;color:#2e7d32}
+.wz-tab.active{background:var(--album);color:#fff}
+.wz-tab .wz-num{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.25);display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;margin-right:.4rem}
+.wz-tab.active .wz-num{background:rgba(255,255,255,.3)}
+.wz-tab.done .wz-num{background:#2e7d32;color:#fff}
+
+.wz-panel{display:none;background:#fff;border:2px solid var(--border);padding:2rem}
+.wz-panel.active{display:block}
+
+/* Step A: Config */
+.album-config-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem}
+.config-block{display:flex;flex-direction:column;gap:.6rem}
+.config-label{font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:.2rem}
+.album-title-input{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.05em;border:none;border-bottom:3px solid var(--accent);background:transparent;color:var(--ink);width:100%;outline:none;padding:.2rem 0}
+.album-title-input::placeholder{color:var(--border)}
+.option-pills{display:flex;gap:.4rem;flex-wrap:wrap}
+.pill{border:2px solid var(--border);padding:.4rem .9rem;font-family:'Space Mono',monospace;font-size:.7rem;font-weight:700;cursor:pointer;background:var(--card);transition:all .2s;white-space:nowrap}
+.pill:hover{border-color:var(--album)}
+.pill.active{border-color:var(--album);background:var(--album-light);color:var(--album-dark)}
+.config-price-box{background:var(--album-light);border:2px solid var(--album);padding:1.2rem;text-align:center;margin-top:auto}
+.cpb-label{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--album-dark);margin-bottom:.3rem}
+.cpb-price{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:.05em;color:var(--album)}
+.cpb-note{font-size:.75rem;color:var(--muted);margin-top:.3rem}
+.wz-next-btn{background:var(--album);color:#fff;border:none;padding:.9rem 2rem;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.1em;cursor:pointer;transition:background .2s;margin-top:1.5rem}
+.wz-next-btn:hover{background:var(--album-dark)}
+.wz-back-btn{background:var(--card);color:var(--ink);border:2px solid var(--border);padding:.9rem 1.5rem;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.1em;cursor:pointer;transition:all .2s;margin-top:1.5rem}
+.wz-back-btn:hover{border-color:var(--ink)}
+
+/* Step B: Cover photo */
+.cover-upload-area{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.cover-drop-zone{border:3px dashed var(--border);padding:3rem 2rem;text-align:center;cursor:pointer;transition:all .3s;position:relative;background:var(--paper)}
+.cover-drop-zone:hover,.cover-drop-zone.drag-over{border-color:var(--album);background:var(--album-light)}
+.cover-drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.cover-drop-icon{font-size:3rem;display:block;margin-bottom:1rem}
+.cover-drop-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.05em;color:var(--ink)}
+.cover-drop-sub{font-size:.85rem;color:var(--muted);margin-top:.4rem;line-height:1.5}
+.cover-preview-box{border:2px solid var(--border);background:#f8f8f8;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.cover-preview-box img{width:100%;height:100%;object-fit:cover}
+.cover-preview-placeholder{text-align:center;color:var(--border);font-family:'Space Mono',monospace;font-size:.75rem}
+.cover-preview-placeholder span{font-size:3rem;display:block;margin-bottom:.5rem}
+.cover-label-input{width:100%;border:none;border-bottom:2px solid var(--border);padding:.5rem 0;font-family:'DM Sans',sans-serif;font-size:1rem;background:transparent;outline:none;color:var(--ink);margin-top:1rem}
+.cover-label-input::placeholder{color:var(--border)}
+.cover-label-input:focus{border-color:var(--album)}
+
+/* Step C: Pages builder */
+.pages-toolbar{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:1.2rem;padding:.8rem;background:var(--paper);border:1px solid var(--border)}
+.pages-toolbar-label{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted)}
+.layout-icon-btn{border:2px solid var(--border);background:#fff;padding:.3rem .5rem;cursor:pointer;transition:all .15s;font-size:.8rem;display:flex;align-items:center;gap:.3rem;font-family:'Space Mono',monospace;font-size:.65rem;font-weight:700}
+.layout-icon-btn:hover,.layout-icon-btn.active{border-color:var(--album);background:var(--album-light);color:var(--album-dark)}
+
+.album-pages-list{display:flex;flex-direction:column;gap:.8rem}
+
+/* PAGE CARD */
+.page-card{background:var(--card);border:2px solid var(--border);transition:border-color .2s}
+.page-card:focus-within{border-color:var(--album)}
+.page-card-header{display:flex;align-items:center;gap:.6rem;padding:.6rem .8rem;background:var(--paper);border-bottom:1px solid var(--border)}
+.page-badge{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.1em;color:#fff;background:var(--album);padding:.1rem .5rem;flex-shrink:0}
+.page-caption{flex:1;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--ink);outline:none;min-width:0}
+.page-caption::placeholder{color:var(--border)}
+.page-layout-row{display:flex;gap:.3rem;align-items:center}
+.page-layout-mini{border:1.5px solid var(--border);background:#fff;width:24px;height:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:2px}
+.page-layout-mini:hover,.page-layout-mini.active{border-color:var(--album);background:var(--album-light)}
+.page-layout-mini svg{width:100%;height:100%}
+.page-del-btn{background:none;border:none;color:var(--border);cursor:pointer;font-size:1rem;padding:.2rem;transition:color .2s;flex-shrink:0}
+.page-del-btn:hover{color:var(--accent)}
+
+.page-card-body{padding:.8rem}
+.photo-grid{display:grid;gap:.5rem}
+.grid-1{grid-template-columns:1fr}
+.grid-2{grid-template-columns:1fr 1fr}
+.grid-3{grid-template-columns:1fr 1fr 1fr}
+.grid-2-1{grid-template-columns:2fr 1fr}
+.grid-1-2{grid-template-columns:1fr 2fr}
+
+.photo-slot{border:2px dashed var(--border);aspect-ratio:4/3;position:relative;overflow:hidden;cursor:pointer;background:#fafafa;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .2s}
+.photo-slot:hover{border-color:var(--album);background:var(--album-light)}
+.photo-slot input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:2}
+.photo-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.slot-empty-icon{font-size:1.4rem;color:var(--border);pointer-events:none;z-index:0}
+.slot-empty-text{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--border);margin-top:.3rem;pointer-events:none;text-align:center;padding:0 .3rem;z-index:0}
+.slot-del{position:absolute;top:4px;right:4px;background:rgba(232,76,30,.9);border:none;color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:.75rem;display:none;align-items:center;justify-content:center;z-index:10;line-height:1}
+.photo-slot:hover .slot-del,.slot-del.show{display:flex}
+
+.add-page-row{display:flex;gap:.6rem;margin-top:1rem;flex-wrap:wrap}
+.add-page-btn-new{flex:1;border:2px dashed var(--border);background:transparent;padding:.7rem;font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.1em;color:var(--muted);cursor:pointer;transition:all .2s;min-width:120px}
+.add-page-btn-new:hover{border-color:var(--album);color:var(--album);background:var(--album-light)}
+
+/* Step D: Review */
+.review-album{display:grid;grid-template-columns:1fr 1fr;gap:2rem}
+.review-book{background:linear-gradient(135deg,var(--album) 0%,var(--album-dark) 100%);padding:2rem;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:260px;position:relative;overflow:hidden}
+.review-book::before{content:'';position:absolute;left:0;top:0;bottom:0;width:20px;background:rgba(0,0,0,.2)}
+.review-book-cover{width:140px;height:180px;background:#fff;box-shadow:4px 4px 16px rgba(0,0,0,.3);overflow:hidden;position:relative;margin-bottom:1rem}
+.review-book-cover img{width:100%;height:100%;object-fit:cover}
+.review-book-cover .no-cover{display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:var(--paper);font-size:2.5rem}
+.review-book-title{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.1em;color:#fff;text-align:center;max-width:160px;word-break:break-word}
+.review-details{display:flex;flex-direction:column;gap:.8rem;justify-content:center}
+.review-row{display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--border)}
+.review-row:last-child{border-bottom:none}
+.rr-label{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--muted)}
+.rr-val{font-family:'Space Mono',monospace;font-size:.8rem;font-weight:700;color:var(--ink)}
+.review-total{background:var(--album-light);border:2px solid var(--album);padding:1rem;display:flex;justify-content:space-between;align-items:center;margin-top:.5rem}
+.review-total-label{font-family:'Space Mono',monospace;font-size:.8rem;color:var(--album-dark)}
+.review-total-price{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:.05em;color:var(--album)}
+.album-add-btn{width:100%;background:var(--album);color:#fff;border:none;padding:1rem;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.1em;cursor:pointer;transition:background .2s;margin-top:1rem}
+.album-add-btn:hover{background:var(--album-dark)}
+.album-thumb-strip{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.8rem}
+.album-thumb{width:40px;height:40px;object-fit:cover;border:2px solid var(--border)}
+
+/* CART SIDEBAR */
+.cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s}
+.cart-overlay.open{opacity:1;pointer-events:all}
+.cart-sidebar{position:fixed;top:0;right:-480px;width:min(480px,100vw);height:100vh;background:var(--card);z-index:300;display:flex;flex-direction:column;transition:right .35s cubic-bezier(.25,.46,.45,.94);border-left:3px solid var(--accent)}
+.cart-sidebar.open{right:0}
+.cart-header{background:var(--ink);color:var(--paper);padding:1.5rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.cart-header h2{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.1em}
+.close-btn{background:none;border:none;color:var(--paper);font-size:1.5rem;cursor:pointer;padding:.2rem;transition:color .2s}
+.close-btn:hover{color:var(--accent)}
+.cart-items{flex:1;overflow-y:auto;padding:1.5rem}
+.empty-cart{text-align:center;padding:3rem 1rem;color:var(--muted);font-family:'Space Mono',monospace;font-size:.8rem}
+.empty-cart .empty-icon{font-size:3rem;display:block;margin-bottom:1rem}
+.cart-item{display:grid;grid-template-columns:80px 1fr auto;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--border);align-items:center;animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.cart-item-preview{width:80px;height:80px;background:#f8f8f8;display:flex;align-items:center;justify-content:center;position:relative;border:1px solid var(--border);overflow:hidden}
+.ci-name{font-family:'Space Mono',monospace;font-size:.75rem;font-weight:700}
+.ci-variant{font-size:.75rem;color:var(--muted);margin-top:.2rem}
+.ci-price{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--accent);letter-spacing:.05em}
+.ci-controls{display:flex;align-items:center;gap:.4rem;margin-top:.5rem}
+.qty-btn{width:22px;height:22px;background:var(--border);border:none;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;font-weight:700;transition:background .15s}
+.qty-btn:hover{background:var(--accent);color:#fff}
+.qty-num{font-family:'Space Mono',monospace;font-size:.8rem;width:20px;text-align:center}
+.remove-btn{background:none;border:none;color:var(--border);cursor:pointer;font-size:1rem;transition:color .15s;padding:.2rem}
+.remove-btn:hover{color:var(--accent)}
+.cart-footer{padding:1.5rem;border-top:2px solid var(--border);flex-shrink:0;background:#fff}
+.cart-total-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1rem}
+.total-label{font-family:'Space Mono',monospace;font-size:.8rem;color:var(--muted)}
+.total-price{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.05em;color:var(--ink)}
+.checkout-btn{width:100%;background:var(--accent);color:#fff;border:none;padding:1rem;font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.1em;cursor:pointer;transition:background .2s}
+.checkout-btn:hover{background:#c73c12}
+
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--ink);color:var(--paper);padding:.8rem 1.5rem;font-family:'Space Mono',monospace;font-size:.8rem;font-weight:700;transform:translateY(120%);opacity:0;transition:all .3s;z-index:500;border-left:4px solid var(--accent2)}
+.toast.show{transform:translateY(0);opacity:1}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--card);border:3px solid var(--accent);padding:2.5rem;width:min(500px,95vw);transform:scale(.9);transition:transform .3s;text-align:center}
+.modal-overlay.open .modal{transform:scale(1)}
+.modal h2{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:.05em;color:var(--accent);margin-bottom:.5rem}
+.modal p{color:var(--muted);margin-bottom:1.5rem;line-height:1.6}
+.modal-btn{background:var(--accent);color:#fff;border:none;padding:.8rem 2rem;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.1em;cursor:pointer;transition:background .2s}
+.modal-btn:hover{background:#c73c12}
+
+@media(max-width:768px){
+  .hero{grid-template-columns:1fr;gap:2rem}
+  .studio-layout{grid-template-columns:1fr}
+  .preview-panel{position:static}
+  .album-config-grid{grid-template-columns:1fr}
+  .cover-upload-area{grid-template-columns:1fr}
+  .review-album{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">CAMA<span>LEÓN</span></div>
+  <button class="cart-btn" onclick="toggleCart()">
+    🛒 CARRITO <span class="cart-count" id="cartCount">0</span>
+  </button>
+</header>
+
+<div class="hero">
+  <div>
+    <h1 class="hero-title">CAMA<br><em>LEÓN</em></h1>
+    <p class="hero-sub">Tazas, camisetas, bolsos, fundas, cojines y álbumes familiares. Dibuja, sube fotos y personaliza cada detalle.</p>
+  </div>
+  <div class="hero-steps">
+    <div class="step active" id="step1"><span class="step-num">1</span> Elige el producto</div>
+    <div class="step" id="step2"><span class="step-num">2</span> Selecciona el modelo</div>
+    <div class="step" id="step3"><span class="step-num">3</span> Personaliza</div>
+    <div class="step" id="step4"><span class="step-num">4</span> Añade al carrito</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="section-label">01 — Producto</div>
+  <div class="product-grid">
+    <div class="product-card" onclick="selectProduct('mug')" id="prod-mug">
+      <span class="pc-icon">☕</span>
+      <div class="pc-title">Taza</div>
+      <div class="pc-desc">Cerámica 330ml, microondas y lavavajillas</div>
+      <div class="pc-price">desde 14,99€</div>
+    </div>
+    <div class="product-card" onclick="selectProduct('shirt')" id="prod-shirt">
+      <span class="pc-icon">👕</span>
+      <div class="pc-title">Camiseta</div>
+      <div class="pc-desc">100% algodón, 3 modelos disponibles</div>
+      <div class="pc-price">desde 19,99€</div>
+    </div>
+    <div class="product-card" onclick="selectProduct('bag')" id="prod-bag">
+      <span class="pc-icon">👜</span>
+      <div class="pc-title">Bolso</div>
+      <div class="pc-desc">Lona resistente o cuero vegano, 3 estilos</div>
+      <div class="pc-price">desde 24,99€</div>
+    </div>
+    <div class="product-card" onclick="selectProduct('album')" id="prod-album">
+      <span class="pc-icon">📸</span>
+      <div class="pc-title">Álbum Familiar</div>
+      <div class="pc-desc">Tus fotos en un libro impreso de calidad</div>
+      <div class="pc-price">desde 29,99€</div>
+    </div>
+    <div class="product-card" onclick="selectProduct('case')" id="prod-case">
+      <span class="pc-icon">📱</span>
+      <div class="pc-title">Funda Móvil</div>
+      <div class="pc-desc">iPhone y Android, rígida o silicona</div>
+      <div class="pc-price">desde 12,99€</div>
+    </div>
+    <div class="product-card" onclick="selectProduct('cushion')" id="prod-cushion">
+      <span class="pc-icon">🛋️</span>
+      <div class="pc-title">Cojín</div>
+      <div class="pc-desc">45×45cm, relleno incluido, 3 acabados</div>
+      <div class="pc-price">desde 22,99€</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- STEP 2: VARIANTS (taza/camiseta/bolso) -->
+  <div id="variant-section">
+    <div class="section-label">02 — Modelo</div>
+    <div class="variant-grid" id="variantGrid"></div>
+    <hr class="divider">
+  </div>
+
+  <!-- STEP 3: DISEÑO (taza/camiseta/bolso) -->
+  <div id="design-section">
+    <div class="section-label">03 — Tu diseño</div>
+    <div class="studio-layout">
+      <div>
+        <div class="canvas-area">
+          <div class="canvas-toolbar">
+            <button class="tool-btn active" id="btn-pen" onclick="setTool('pen')">✏️ Dibujar</button>
+            <button class="tool-btn" id="btn-eraser" onclick="setTool('eraser')">🧹 Borrador</button>
+            <button class="tool-btn danger" onclick="clearCanvas()">🗑️ Limpiar</button>
+            <div style="flex:1"></div>
+            <span class="size-label">Grosor:</span>
+            <input type="range" id="brushSize" min="1" max="30" value="6" oninput="brushSizeVal=this.value">
+          </div>
+          <div class="color-row" style="margin-bottom:.8rem">
+            <span class="size-label">Color:</span>
+            <div class="color-swatch active" style="background:#0a0a0a" onclick="setColor('#0a0a0a',this)"></div>
+            <div class="color-swatch" style="background:#e84c1e" onclick="setColor('#e84c1e',this)"></div>
+            <div class="color-swatch" style="background:#f5c842" onclick="setColor('#f5c842',this)"></div>
+            <div class="color-swatch" style="background:#2563eb" onclick="setColor('#2563eb',this)"></div>
+            <div class="color-swatch" style="background:#16a34a" onclick="setColor('#16a34a',this)"></div>
+            <div class="color-swatch" style="background:#9333ea" onclick="setColor('#9333ea',this)"></div>
+            <div class="color-swatch" style="background:#ec4899" onclick="setColor('#ec4899',this)"></div>
+            <div class="color-swatch" style="background:#fff;border:2px solid #ccc" onclick="setColor('#fff',this)"></div>
+            <input type="color" id="customColor" style="width:24px;height:24px;border:none;padding:0;cursor:pointer" title="Color personalizado" oninput="setColor(this.value,null)">
+          </div>
+          <canvas id="drawCanvas" width="360" height="360"></canvas>
+          <div class="upload-zone">
+            <input type="file" id="uploadInput" accept="image/*" onchange="loadImage(event)">
+            <strong>📁 Subir imagen</strong>
+            <p>Arrastra o haz clic — JPG, PNG, SVG, WEBP</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="preview-panel">
+          <div class="preview-title">Vista Previa <span class="preview-badge">EN VIVO</span></div>
+          <div class="preview-container">
+            <canvas id="previewCanvas" width="400" height="400"></canvas>
+          </div>
+          <div class="preview-info" id="previewInfo">—</div>
+          <div class="preview-price" id="previewPrice">—</div>
+          <button class="add-cart-btn" id="addCartBtn" onclick="addToCart()" disabled>AÑADIR AL CARRITO →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALBUM WIZARD -->
+  <div id="album-section">
+    <div class="section-label">02 — Crea tu álbum</div>
+
+    <!-- TABS -->
+    <div class="album-wizard">
+      <button class="wz-tab active" id="wztab-0" onclick="goWzTab(0)"><span class="wz-num">1</span>Configurar</button>
+      <button class="wz-tab" id="wztab-1" onclick="goWzTab(1)"><span class="wz-num">2</span>Portada</button>
+      <button class="wz-tab" id="wztab-2" onclick="goWzTab(2)"><span class="wz-num">3</span>Páginas</button>
+      <button class="wz-tab" id="wztab-3" onclick="goWzTab(3)"><span class="wz-num">4</span>Revisar</button>
+    </div>
+
+    <!-- PANEL 0: CONFIG -->
+    <div class="wz-panel active" id="wzpanel-0">
+      <div class="album-config-grid">
+        <div style="display:flex;flex-direction:column;gap:1.2rem">
+          <div class="config-block">
+            <div class="config-label">Título del álbum</div>
+            <input class="album-title-input" id="albumTitle" type="text" placeholder="Mi álbum familiar 2024" maxlength="60">
+          </div>
+          <div class="config-block">
+            <div class="config-label">Tipo de portada</div>
+            <div class="option-pills" id="coverStylePills">
+              <button class="pill active" onclick="setPill(this,'coverStyle','tapa-dura')">📗 Tapa dura +4€</button>
+              <button class="pill" onclick="setPill(this,'coverStyle','tapa-blanda')">📄 Tapa blanda</button>
+              <button class="pill" onclick="setPill(this,'coverStyle','tela')">🎀 Tela +8€</button>
+            </div>
+          </div>
+          <div class="config-block">
+            <div class="config-label">Formato</div>
+            <div class="option-pills" id="formatPills">
+              <button class="pill active" onclick="setPill(this,'albumFormat','cuadrado')">⬛ Cuadrado 20×20</button>
+              <button class="pill" onclick="setPill(this,'albumFormat','apaisado')">▬ Apaisado 28×20 +5€</button>
+              <button class="pill" onclick="setPill(this,'albumFormat','vertical')">▮ Vertical 20×28 +3€</button>
+            </div>
+          </div>
+          <div class="config-block">
+            <div class="config-label">Acabado del papel</div>
+            <div class="option-pills" id="paperPills">
+              <button class="pill active" onclick="setPill(this,'albumPaper','mate')">🤍 Mate</button>
+              <button class="pill" onclick="setPill(this,'albumPaper','brillante')">✨ Brillante +2€</button>
+              <button class="pill" onclick="setPill(this,'albumPaper','seda')">🪡 Seda +4€</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="config-price-box">
+            <div class="cpb-label">PRECIO ESTIMADO</div>
+            <div class="cpb-price" id="cfgPrice">29,99€</div>
+            <div class="cpb-note" id="cfgPriceNote">Base · 0 páginas añadidas</div>
+          </div>
+          <div style="margin-top:1.2rem;padding:1rem;background:var(--paper);border:1px solid var(--border)">
+            <div style="font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);margin-bottom:.5rem">QUÉ INCLUYE</div>
+            <div style="font-size:.85rem;color:var(--ink);line-height:1.8">
+              ✓ Impresión en papel fotográfico premium<br>
+              ✓ Encuadernación profesional cosida<br>
+              ✓ Prueba de color gratuita<br>
+              ✓ Envío protegido incluido<br>
+              ✓ Primera página de título gratis
+            </div>
+          </div>
+          <button class="wz-next-btn" onclick="goWzTab(1)">SIGUIENTE: PORTADA →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL 1: COVER -->
+    <div class="wz-panel" id="wzpanel-1">
+      <div style="margin-bottom:1rem">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.05em;margin-bottom:.3rem">Foto de portada</div>
+        <p style="font-size:.9rem;color:var(--muted)">Sube la foto que aparecerá en la cubierta de tu álbum. Recomendamos al menos 1200×1600px para máxima calidad.</p>
+      </div>
+      <div class="cover-upload-area">
+        <div>
+          <div class="cover-drop-zone" id="coverDropZone">
+            <input type="file" id="coverInput" accept="image/*" onchange="loadCoverPhoto(event)">
+            <span class="cover-drop-icon">🖼️</span>
+            <div class="cover-drop-title">Arrastra tu foto aquí</div>
+            <div class="cover-drop-sub">o haz clic para seleccionar<br>JPG · PNG · WEBP · min. 800×600px</div>
+          </div>
+          <div style="margin-top:1rem">
+            <div class="config-label" style="margin-bottom:.4rem">Texto en portada (opcional)</div>
+            <input class="cover-label-input" id="coverLabel" type="text" placeholder="ej. Verano 2024 · La familia García" maxlength="50">
+          </div>
+          <div style="margin-top:.8rem">
+            <div class="config-label" style="margin-bottom:.4rem">Color del texto</div>
+            <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+              <div class="color-swatch active" style="background:#ffffff;border:2px solid #ccc" onclick="setCoverTextColor('#ffffff',this)"></div>
+              <div class="color-swatch" style="background:#0a0a0a" onclick="setCoverTextColor('#0a0a0a',this)"></div>
+              <div class="color-swatch" style="background:#f5c842" onclick="setCoverTextColor('#f5c842',this)"></div>
+              <div class="color-swatch" style="background:#e84c1e" onclick="setCoverTextColor('#e84c1e',this)"></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="config-label" style="margin-bottom:.6rem">PREVISUALIZACIÓN</div>
+          <div class="cover-preview-box" id="coverPreviewBox">
+            <div class="cover-preview-placeholder" id="coverPlaceholder">
+              <span>📷</span>Aquí aparecerá<br>tu foto de portada
+            </div>
+            <img id="coverPreviewImg" src="" alt="" style="display:none">
+            <div id="coverLabelOverlay" style="position:absolute;bottom:0;left:0;right:0;padding:.6rem;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.05em;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.5));display:none"></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:.6rem;margin-top:1.5rem">
+        <button class="wz-back-btn" onclick="goWzTab(0)">← ATRÁS</button>
+        <button class="wz-next-btn" onclick="goWzTab(2)">SIGUIENTE: PÁGINAS →</button>
+      </div>
+    </div>
+
+    <!-- PANEL 2: PAGES -->
+    <div class="wz-panel" id="wzpanel-2">
+      <div style="margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.05em">Páginas del álbum</div>
+          <div style="font-size:.85rem;color:var(--muted);margin-top:.2rem">Cada página puede tener 1, 2, 3 fotos o un diseño especial. Añade un pie de foto a cada página.</div>
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <span style="font-family:'Space Mono',monospace;font-size:.7rem;color:var(--muted)" id="pageCountBadge">0 páginas</span>
+          <span style="font-family:'Space Mono',monospace;font-size:.7rem;color:var(--muted)" id="photoCountBadge">0 fotos</span>
+        </div>
+      </div>
+
+      <div class="pages-toolbar">
+        <span class="pages-toolbar-label">AÑADIR PÁGINA CON DISEÑO:</span>
+        <button class="layout-icon-btn" onclick="addPage('grid-1')" title="1 foto grande">⬛ 1 foto</button>
+        <button class="layout-icon-btn" onclick="addPage('grid-2')" title="2 fotos lado a lado">⬛⬛ 2 fotos</button>
+        <button class="layout-icon-btn" onclick="addPage('grid-3')" title="3 fotos en fila">⬛⬛⬛ 3 fotos</button>
+        <button class="layout-icon-btn" onclick="addPage('grid-2-1')" title="Grande + pequeña">▬▪ Grande+pequeña</button>
+        <button class="layout-icon-btn" onclick="addPage('grid-1-2')" title="Pequeña + grande">▪▬ Pequeña+grande</button>
+      </div>
+
+      <div class="album-pages-list" id="albumPagesList"></div>
+
+      <div style="text-align:center;padding:1.5rem;border:2px dashed var(--border);margin-top:.8rem;background:var(--paper)" id="emptyPagesHint">
+        <div style="font-size:2rem;margin-bottom:.5rem">📄</div>
+        <div style="font-family:'Space Mono',monospace;font-size:.75rem;color:var(--muted)">Haz clic en uno de los botones de arriba<br>para añadir tu primera página</div>
+      </div>
+
+      <div style="display:flex;gap:.6rem;margin-top:1.5rem">
+        <button class="wz-back-btn" onclick="goWzTab(1)">← ATRÁS</button>
+        <button class="wz-next-btn" onclick="goWzToReview()">VER RESUMEN →</button>
+      </div>
+    </div>
+
+    <!-- PANEL 3: REVIEW -->
+    <div class="wz-panel" id="wzpanel-3">
+      <div class="review-album">
+        <div>
+          <div class="review-book">
+            <div class="review-book-cover">
+              <img id="reviewCoverImg" src="" style="display:none" alt="">
+              <div class="no-cover" id="reviewNoCover">📷</div>
+            </div>
+            <div class="review-book-title" id="reviewTitle">Mi álbum</div>
+          </div>
+          <div id="reviewThumbs" class="album-thumb-strip" style="margin-top:.8rem"></div>
+        </div>
+        <div class="review-details">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.05em;margin-bottom:.5rem">Resumen del pedido</div>
+          <div class="review-row"><span class="rr-label">Título</span><span class="rr-val" id="rv-title">—</span></div>
+          <div class="review-row"><span class="rr-label">Portada</span><span class="rr-val" id="rv-cover">—</span></div>
+          <div class="review-row"><span class="rr-label">Formato</span><span class="rr-val" id="rv-format">—</span></div>
+          <div class="review-row"><span class="rr-label">Papel</span><span class="rr-val" id="rv-paper">—</span></div>
+          <div class="review-row"><span class="rr-label">Páginas</span><span class="rr-val" id="rv-pages">—</span></div>
+          <div class="review-row"><span class="rr-label">Fotos</span><span class="rr-val" id="rv-photos">—</span></div>
+          <div class="review-total">
+            <span class="review-total-label">TOTAL ESTIMADO</span>
+            <span class="review-total-price" id="rv-price">—</span>
+          </div>
+          <button class="album-add-btn" onclick="addAlbumToCart()">📚 AÑADIR AL CARRITO →</button>
+          <button class="wz-back-btn" style="width:100%;margin-top:.4rem" onclick="goWzTab(2)">← EDITAR PÁGINAS</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /album-section -->
+
+</div><!-- /main -->
+
+<!-- CART -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h2>🛒 CARRITO</h2>
+    <button class="close-btn" onclick="toggleCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="empty-cart"><span class="empty-icon">🛍️</span>Tu carrito está vacío.<br>¡Diseña algo increíble!</div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total-row">
+      <span class="total-label">TOTAL</span>
+      <span class="total-price" id="cartTotal">0,00€</span>
+    </div>
+    <button class="checkout-btn" onclick="checkout()">FINALIZAR PEDIDO →</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="checkoutModal">
+  <div class="modal">
+    <h2>🎉 ¡Pedido enviado!</h2>
+    <p>Hemos recibido tu pedido con <strong id="orderSummary"></strong>.<br>En breve recibirás una confirmación.<br><br>¡Gracias por personalizar con INKD!</p>
+    <button class="modal-btn" onclick="closeModal()">VOLVER A LA TIENDA</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== PRODUCT DATA ===== */
+const PRODUCTS={
+  mug:{name:'Taza',variants:[
+    {id:'mug-classic',name:'Clásica',  extra:'330ml · Blanca',          price:14.99,svgType:'mug-classic'},
+    {id:'mug-magic',  name:'Mágica',   extra:'330ml · Cambia de color', price:17.99,svgType:'mug-magic'},
+    {id:'mug-travel', name:'Travel',   extra:'450ml · Con tapa',        price:21.99,svgType:'mug-travel'},
+  ]},
+  shirt:{name:'Camiseta',variants:[
+    {id:'shirt-classic',  name:'Clásica',  extra:'Cuello redondo · Slim fit',  price:19.99,svgType:'shirt-classic'},
+    {id:'shirt-oversized',name:'Oversized',extra:'Corte holgado · Streetwear', price:22.99,svgType:'shirt-oversized'},
+    {id:'shirt-polo',     name:'Polo',     extra:'Cuello polo · Premium',      price:24.99,svgType:'shirt-polo'},
+  ]},
+  bag:{name:'Bolso',variants:[
+    {id:'bag-tote',    name:'Tote Bag',extra:'Lona 100% · Lavable',      price:24.99,svgType:'bag-tote'},
+    {id:'bag-backpack',name:'Mochila', extra:'20L · Lona + correas',     price:39.99,svgType:'bag-backpack'},
+    {id:'bag-clutch',  name:'Clutch',  extra:'Cuero vegano · Cremallera',price:29.99,svgType:'bag-clutch'},
+  ]},
+  case:{name:'Funda Móvil',variants:[
+    {id:'case-iphone',  name:'iPhone',   extra:'Serie 13/14/15 · Rígida',      price:12.99,svgType:'case-iphone'},
+    {id:'case-samsung', name:'Samsung',  extra:'Serie S · Silicona suave',     price:12.99,svgType:'case-samsung'},
+    {id:'case-universal',name:'Universal',extra:'Funda libro · Varios tamaños',price:15.99,svgType:'case-universal'},
+  ]},
+  cushion:{name:'Cojín',variants:[
+    {id:'cushion-basic',  name:'Básico',   extra:'45×45cm · Funda+relleno',     price:22.99,svgType:'cushion-basic'},
+    {id:'cushion-velvet', name:'Terciopelo',extra:'45×45cm · Tacto premium',    price:27.99,svgType:'cushion-velvet'},
+    {id:'cushion-heart',  name:'Corazón',  extra:'35cm · Forma especial',       price:24.99,svgType:'cushion-heart'},
+  ]}
+};
+
+/* ===== SVG GENERATORS ===== */
+function getMugSVG(t){
+  const dark=t==='mug-magic',travel=t==='mug-travel';
+  const body=dark?'#1a1a2e':travel?'#2d6a8a':'#f0ece0';
+  const rim=dark?'#2d2d5e':travel?'#1d4a6a':'#d8d0b8';
+  const lid=travel?`<rect x="35" y="44" width="110" height="14" rx="7" fill="#1d4a6a"/>
+    <rect x="75" y="38" width="30" height="8" rx="4" fill="#155a7a"/>`:''
+  const ty=travel?58:50;
+  return 'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    ${lid}
+    <rect x="35" y="${ty}" width="110" height="115" rx="8" fill="${body}" stroke="#aaa" stroke-width="2"/>
+    <rect x="35" y="${ty}" width="110" height="16" rx="4" fill="${rim}"/>
+    <rect x="35" y="${ty+99}" width="110" height="8" rx="4" fill="${rim}"/>
+    <path d="M145 ${ty+30} Q170 ${ty+45} 170 ${ty+55} Q170 ${ty+75} 145 ${ty+80}" fill="none" stroke="${rim}" stroke-width="12" stroke-linecap="round"/>
+    <path d="M145 ${ty+38} Q158 ${ty+48} 158 ${ty+58} Q158 ${ty+68} 145 ${ty+72}" fill="none" stroke="${body}" stroke-width="6" stroke-linecap="round"/>
+  </svg>`);
+}
+function getShirtSVG(t){
+  const cols={'shirt-classic':'#f0f0f0','shirt-oversized':'#d4e8d4','shirt-polo':'#d4d4e8'};
+  const c=cols[t]||'#f0f0f0',wide=t==='shirt-oversized',pw=wide?130:110,px=(200-pw)/2;
+  return 'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 220">
+    <path d="M${px} 50 L55 30 L80 20 Q100 35 120 20 L145 30 L${px+pw} 50 L${px+pw-10} 75 L${px+pw-5} 200 L${px+5} 200 L${px+10} 75 Z" fill="${c}" stroke="#aaa" stroke-width="1.5"/>
+    <path d="M80 20 Q100 35 120 20" fill="none" stroke="#aaa" stroke-width="1.5"/>
+    ${t==='shirt-polo'?`<rect x="88" y="18" width="24" height="18" rx="2" fill="${c}" stroke="#aaa" stroke-width="1.5"/>`:''}</svg>`);
+}
+function getBagSVG(t){
+  if(t==='bag-tote') return 'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 220">
+    <path d="M50 80 L40 190 L160 190 L150 80 Z" fill="#e8dcc8" stroke="#aaa" stroke-width="1.5"/>
+    <path d="M75 80 Q75 45 100 45 Q125 45 125 80" fill="none" stroke="#aaa" stroke-width="8" stroke-linecap="round"/>
+    <line x1="40" y1="110" x2="160" y2="110" stroke="#c8b898" stroke-width="1.5"/>
+    <rect x="85" y="100" width="30" height="20" rx="3" fill="#c8b898"/></svg>`);
+  if(t==='bag-backpack') return 'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240">
+    <rect x="45" y="50" width="110" height="150" rx="20" fill="#5c7a9a" stroke="#4a6280" stroke-width="1.5"/>
+    <path d="M80 50 Q80 25 100 25 Q120 25 120 50" fill="none" stroke="#4a6280" stroke-width="8" stroke-linecap="round"/>
+    <rect x="65" y="90" width="70" height="45" rx="8" fill="#4a6280"/>
+    <line x1="100" y1="90" x2="100" y2="135" stroke="#5c7a9a" stroke-width="2"/>
+    <line x1="65" y1="112" x2="135" y2="112" stroke="#5c7a9a" stroke-width="2"/>
+    <rect x="82" y="160" width="36" height="12" rx="6" fill="#4a6280"/></svg>`);
+  return 'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160">
+    <rect x="30" y="40" width="140" height="100" rx="8" fill="#c8a882" stroke="#a08862" stroke-width="1.5"/>
+    <rect x="30" y="40" width="140" height="24" rx="8" fill="#a08862"/>
+    <rect x="30" y="52" width="140" height="12" fill="#a08862"/>
+    <line x1="100" y1="40" x2="100" y2="140" stroke="#a08862" stroke-width="1"/>
+    <rect x="82" y="46" width="36" height="12" rx="6" fill="#886842"/>
+    <circle cx="100" cy="52" r="4" fill="#c8a882"/></svg>`);
+}
+function getCaseSVG(t){
+  if(t==='case-universal') return 'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240">
+    <rect x="30" y="20" width="140" height="200" rx="10" fill="#4a4a6a" stroke="#333355" stroke-width="1.5"/>
+    <rect x="38" y="28" width="124" height="184" rx="8" fill="#e8e8f8"/>
+    <rect x="44" y="34" width="112" height="172" rx="6" fill="#f0f0fc" stroke="#d0d0ea" stroke-width="1"/>
+    <line x1="30" y1="80" x2="38" y2="80" stroke="#333355" stroke-width="3" stroke-linecap="round"/>
+    <line x1="30" y1="100" x2="38" y2="100" stroke="#333355" stroke-width="3" stroke-linecap="round"/></svg>`);
+  const isS = t==='case-samsung';
+  const bodyC = isS ? '#2d4a6e' : '#3a3a3a';
+  const screenC = isS ? '#e8f0fb' : '#f0f0f0';
+  return 'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240">
+    <rect x="45" y="15" width="110" height="210" rx="18" fill="${bodyC}" stroke="#222" stroke-width="1.5"/>
+    <rect x="52" y="30" width="96" height="180" rx="8" fill="${screenC}"/>
+    <rect x="85" y="18" width="30" height="5" rx="2.5" fill="#111"/>
+    <circle cx="100" cy="215" r="${isS?0:5}" fill="#555"/>
+    ${isS?`<rect x="88" y="210" width="24" height="8" rx="4" fill="#444"/>`:''}
+  </svg>`);
+}
+function getCushionSVG(t){
+  if(t==='cushion-heart') return 'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 200">
+    <path d="M110 170 C60 130 20 100 20 65 C20 38 40 20 65 20 C82 20 96 30 110 45 C124 30 138 20 155 20 C180 20 200 38 200 65 C200 100 160 130 110 170Z" fill="#f8d0d8" stroke="#e8a0b0" stroke-width="2"/>
+    <path d="M110 155 C68 120 35 95 35 65 C35 46 50 33 65 33 C80 33 93 42 110 58 C127 42 140 33 155 33 C170 33 185 46 185 65 C185 95 152 120 110 155Z" fill="#fce0e8"/>
+  </svg>`);
+  const isVelvet = t==='cushion-velvet';
+  const c = isVelvet ? '#7b4a8a' : '#e8e0d0';
+  const inner = isVelvet ? '#9060a0' : '#f5f0e8';
+  const stroke = isVelvet ? '#5a3060' : '#c8b898';
+  return 'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220">
+    <rect x="15" y="15" width="190" height="190" rx="28" fill="${c}" stroke="${stroke}" stroke-width="2"/>
+    <rect x="28" y="28" width="164" height="164" rx="20" fill="${inner}"/>
+    <line x1="110" y1="28" x2="110" y2="192" stroke="${stroke}" stroke-width="1" stroke-dasharray="4,4"/>
+    <line x1="28" y1="110" x2="192" y2="110" stroke="${stroke}" stroke-width="1" stroke-dasharray="4,4"/>
+    <circle cx="28" cy="28" r="6" fill="${stroke}"/>
+    <circle cx="192" cy="28" r="6" fill="${stroke}"/>
+    <circle cx="28" cy="192" r="6" fill="${stroke}"/>
+    <circle cx="192" cy="192" r="6" fill="${stroke}"/>
+  </svg>`);
+}
+function getProductImage(v){
+  if(!v)return '';
+  if(v.svgType.startsWith('mug'))return getMugSVG(v.svgType);
+  if(v.svgType.startsWith('shirt'))return getShirtSVG(v.svgType);
+  if(v.svgType.startsWith('bag'))return getBagSVG(v.svgType);
+  if(v.svgType.startsWith('case'))return getCaseSVG(v.svgType);
+  if(v.svgType.startsWith('cushion'))return getCushionSVG(v.svgType);
+  return '';
+}
+
+/* ===== APP STATE ===== */
+let selectedProduct=null,selectedVariant=null,cart=[];
+let drawTool='pen',drawColor='#0a0a0a',brushSizeVal=6;
+let isDrawing=false,lastX=0,lastY=0;
+
+/* ===== CANVAS ===== */
+const canvas=document.getElementById('drawCanvas');
+const ctx=canvas.getContext('2d');
+ctx.lineCap='round';ctx.lineJoin='round';
+
+function getPos(e){
+  const r=canvas.getBoundingClientRect();
+  const sx=canvas.width/r.width,sy=canvas.height/r.height;
+  const s=e.touches?e.touches[0]:e;
+  return[(s.clientX-r.left)*sx,(s.clientY-r.top)*sy];
+}
+canvas.addEventListener('mousedown',e=>{isDrawing=true;[lastX,lastY]=getPos(e)});
+canvas.addEventListener('mousemove',e=>{if(!isDrawing)return;draw(e)});
+canvas.addEventListener('mouseup',()=>{isDrawing=false;ctx.beginPath();updatePreview()});
+canvas.addEventListener('mouseleave',()=>{isDrawing=false;ctx.beginPath()});
+canvas.addEventListener('touchstart',e=>{e.preventDefault();isDrawing=true;[lastX,lastY]=getPos(e)},{passive:false});
+canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!isDrawing)return;draw(e)},{passive:false});
+canvas.addEventListener('touchend',()=>{isDrawing=false;ctx.beginPath();updatePreview()});
+
+function draw(e){
+  const[x,y]=getPos(e);
+  ctx.beginPath();
+  ctx.globalCompositeOperation=drawTool==='eraser'?'destination-out':'source-over';
+  ctx.strokeStyle=drawColor;ctx.lineWidth=drawTool==='eraser'?brushSizeVal*3:brushSizeVal;
+  ctx.moveTo(lastX,lastY);ctx.lineTo(x,y);ctx.stroke();
+  [lastX,lastY]=[x,y];updatePreview();
+}
+function setTool(t){
+  drawTool=t;
+  document.querySelectorAll('.tool-btn[id^="btn-"]').forEach(b=>b.classList.remove('active'));
+  const b=document.getElementById('btn-'+t);if(b)b.classList.add('active');
+}
+function setColor(c,el){
+  drawColor=c;
+  document.querySelectorAll('.canvas-area .color-swatch').forEach(s=>s.classList.remove('active'));
+  if(el)el.classList.add('active');setTool('pen');
+}
+function clearCanvas(){ctx.clearRect(0,0,canvas.width,canvas.height);updatePreview()}
+function loadImage(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{const i=new Image();i.onload=()=>{
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const s=Math.min(canvas.width/i.width,canvas.height/i.height);
+    const w=i.width*s,h=i.height*s;
+    ctx.drawImage(i,(canvas.width-w)/2,(canvas.height-h)/2,w,h);
+    updatePreview();
+  };i.src=ev.target.result};r.readAsDataURL(f);
+}
+// ---- PREVIEW COMPOSITE CANVAS ----
+const previewCanvas = document.getElementById('previewCanvas');
+const pCtx = previewCanvas.getContext('2d');
+
+// Clip regions per product type (in a 400x400 canvas, product occupies center ~280x280)
+// Coordinates define the "print area" polygon where the design stays
+const CLIP_ZONES = {
+  // tazas: frente de la taza, área rectangular central
+  'mug-classic':  {type:'rect', x:110, y:115, w:155, h:145},
+  'mug-magic':    {type:'rect', x:110, y:115, w:155, h:145},
+  'mug-travel':   {type:'rect', x:110, y:125, w:155, h:135},
+  // camisetas: zona del pecho
+  'shirt-classic':   {type:'rect', x:130, y:115, w:140, h:120},
+  'shirt-oversized': {type:'rect', x:120, y:115, w:160, h:120},
+  'shirt-polo':      {type:'rect', x:130, y:120, w:140, h:110},
+  // bolsos
+  'bag-tote':     {type:'rect', x:118, y:148, w:165, h:120},
+  'bag-backpack': {type:'rect', x:122, y:155, w:155, h:105},
+  'bag-clutch':   {type:'rect', x:100, y:148, w:200, h:110},
+  // fundas
+  'case-iphone':   {type:'rect', x:131, y:95,  w:96,  h:165},
+  'case-samsung':  {type:'rect', x:131, y:95,  w:96,  h:165},
+  'case-universal':{type:'rect', x:124, y:88,  w:112, h:172},
+  // cojines
+  'cushion-basic':  {type:'rect', x:88,  y:88,  w:164, h:164},
+  'cushion-velvet': {type:'rect', x:88,  y:88,  w:164, h:164},
+  'cushion-heart':  {type:'rect', x:105, y:105, w:130, h:110},
+};
+
+let currentProductImg = null;
+
+function updatePreview(){
+  if(!selectedVariant) return;
+  const SIZE = previewCanvas.width; // 400
+  pCtx.clearRect(0,0,SIZE,SIZE);
+
+  // Draw product image
+  if(currentProductImg){
+    const pw = SIZE * 0.7, ph = SIZE * 0.7;
+    const ox = (SIZE - pw)/2, oy = (SIZE - ph)/2;
+    pCtx.drawImage(currentProductImg, ox, oy, pw, ph);
+  }
+
+  // Get clip zone for current variant
+  const zone = CLIP_ZONES[selectedVariant.svgType];
+  if(!zone) return;
+
+  // Clip to print area then draw design
+  pCtx.save();
+  pCtx.beginPath();
+  if(zone.type==='rect'){
+    // Slightly round the corners for a natural look
+    const r = 6;
+    const {x,y,w,h} = zone;
+    pCtx.moveTo(x+r,y);
+    pCtx.lineTo(x+w-r,y); pCtx.arcTo(x+w,y,x+w,y+r,r);
+    pCtx.lineTo(x+w,y+h-r); pCtx.arcTo(x+w,y+h,x+w-r,y+h,r);
+    pCtx.lineTo(x+r,y+h); pCtx.arcTo(x,y+h,x,y+h-r,r);
+    pCtx.lineTo(x,y+r); pCtx.arcTo(x,y,x+r,y,r);
+  }
+  pCtx.closePath();
+  pCtx.clip();
+
+  // Draw the user design inside the clip
+  const {x,y,w,h} = zone;
+  pCtx.globalAlpha = 0.92;
+  pCtx.drawImage(canvas, x, y, w, h);
+  pCtx.globalAlpha = 1;
+  pCtx.restore();
+
+  // Re-draw product on top with multiply to blend design naturally
+  if(currentProductImg){
+    const pw = SIZE * 0.7, ph = SIZE * 0.7;
+    const ox = (SIZE - pw)/2, oy = (SIZE - ph)/2;
+    pCtx.globalCompositeOperation = 'multiply';
+    pCtx.globalAlpha = 0.18;
+    pCtx.drawImage(currentProductImg, ox, oy, pw, ph);
+    pCtx.globalCompositeOperation = 'source-over';
+    pCtx.globalAlpha = 1;
+  }
+}
+
+/* ===== PRODUCT SELECTION ===== */
+function selectProduct(type){
+  selectedProduct=type;selectedVariant=null;
+  document.querySelectorAll('.product-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('prod-'+type).classList.add('selected');
+
+  if(type==='album'){
+    document.getElementById('variant-section').style.display='none';
+    document.getElementById('design-section').style.display='none';
+    document.getElementById('album-section').style.display='block';
+    setStep(2);
+    document.getElementById('album-section').scrollIntoView({behavior:'smooth',block:'nearest'});
+    return;
+  }
+  setStep(2);
+  renderVariants(type);
+  document.getElementById('variant-section').style.display='block';
+  document.getElementById('design-section').style.display='none';
+  document.getElementById('album-section').style.display='none';
+  document.getElementById('addCartBtn').disabled=true;
+  document.getElementById('variant-section').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function renderVariants(type){
+  const grid=document.getElementById('variantGrid');
+  grid.innerHTML='';
+  PRODUCTS[type].variants.forEach(v=>{
+    const div=document.createElement('div');div.className='variant-card';
+    div.onclick=()=>selectVariant(v);div.id='var-'+v.id;
+    div.innerHTML=`<div class="variant-img"><img src="${getProductImage(v)}" style="width:100%;height:100%;object-fit:contain" alt="${v.name}"></div>
+    <div class="variant-name">${v.name}</div>
+    <div class="variant-extra">${v.extra}</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--accent);margin-top:.4rem;letter-spacing:.05em">${v.price.toFixed(2)}€</div>`;
+    grid.appendChild(div);
+  });
+}
+
+function selectVariant(v){
+  selectedVariant=v;
+  document.querySelectorAll('.variant-card').forEach(c=>c.classList.remove('selected'));
+  const el=document.getElementById('var-'+v.id);if(el)el.classList.add('selected');
+  setStep(3);
+  document.getElementById('design-section').style.display='block';
+  document.getElementById('previewInfo').textContent=PRODUCTS[selectedProduct].name+' · '+v.name+' · '+v.extra;
+  document.getElementById('previewPrice').textContent=v.price.toFixed(2)+'€';
+  document.getElementById('addCartBtn').disabled=false;
+  // Load product SVG into image for composite preview
+  currentProductImg = new Image();
+  currentProductImg.onload = () => updatePreview();
+  currentProductImg.src = getProductImage(v);
+  document.getElementById('design-section').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function setStep(n){for(let i=1;i<=4;i++)document.getElementById('step'+i).classList.toggle('active',i<=n)}
+
+/* ===== ALBUM WIZARD STATE ===== */
+let albumConfig={coverStyle:'tapa-dura',albumFormat:'cuadrado',albumPaper:'mate'};
+let albumCoverPhoto=null;
+let albumCoverTextColor='#ffffff';
+let albumPages2=[];
+let wzCurrentTab=0;
+
+const ALBUM_BASE=29.99,ALBUM_PER_PAGE=1.5;
+
+function calcAlbumPrice(){
+  let p=ALBUM_BASE;
+  if(albumConfig.coverStyle==='tapa-dura')p+=4;
+  if(albumConfig.coverStyle==='tela')p+=8;
+  if(albumConfig.albumFormat==='apaisado')p+=5;
+  if(albumConfig.albumFormat==='vertical')p+=3;
+  if(albumConfig.albumPaper==='brillante')p+=2;
+  if(albumConfig.albumPaper==='seda')p+=4;
+  p+=albumPages2.length*ALBUM_PER_PAGE;
+  return p;
+}
+
+function setPill(el,key,val){
+  albumConfig[key]=val;
+  const container=el.closest('.option-pills');
+  if(container)container.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  updateAlbumConfigPrice();
+}
+
+function updateAlbumConfigPrice(){
+  const p=calcAlbumPrice();
+  document.getElementById('cfgPrice').textContent=p.toFixed(2).replace('.',',')+'€';
+  document.getElementById('cfgPriceNote').textContent=`Con ${albumPages2.length} página${albumPages2.length!==1?'s':''}`;
+}
+
+/* WIZARD NAVIGATION */
+function goWzTab(n){
+  wzCurrentTab=n;
+  document.querySelectorAll('.wz-tab').forEach((t,i)=>{
+    t.classList.remove('active','done');
+    if(i<n)t.classList.add('done');
+    else if(i===n)t.classList.add('active');
+  });
+  document.querySelectorAll('.wz-panel').forEach((p,i)=>p.classList.toggle('active',i===n));
+  if(n===3)buildReview();
+  updateAlbumConfigPrice();
+}
+
+function goWzToReview(){
+  if(albumPages2.length===0){showToast('⚠️ Añade al menos una página');return}
+  goWzTab(3);
+}
+
+/* COVER PHOTO */
+function loadCoverPhoto(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    albumCoverPhoto=ev.target.result;
+    document.getElementById('coverPreviewImg').src=albumCoverPhoto;
+    document.getElementById('coverPreviewImg').style.display='block';
+    document.getElementById('coverPlaceholder').style.display='none';
+    showToast('✅ Foto de portada cargada');
+    updateCoverLabel();
+  };r.readAsDataURL(f);
+}
+
+function updateCoverLabel(){
+  const txt=document.getElementById('coverLabel').value;
+  const ov=document.getElementById('coverLabelOverlay');
+  ov.style.color=albumCoverTextColor;
+  if(txt){ov.textContent=txt;ov.style.display='block';}
+  else{ov.style.display='none';}
+}
+document.getElementById('coverLabel').addEventListener('input',updateCoverLabel);
+
+function setCoverTextColor(c,el){
+  albumCoverTextColor=c;
+  document.querySelectorAll('#wzpanel-1 .color-swatch').forEach(s=>s.classList.remove('active'));
+  if(el)el.classList.add('active');
+  updateCoverLabel();
+}
+
+/* DRAG OVER */
+const cdz=document.getElementById('coverDropZone');
+cdz.addEventListener('dragover',e=>{e.preventDefault();cdz.classList.add('drag-over')});
+cdz.addEventListener('dragleave',()=>cdz.classList.remove('drag-over'));
+cdz.addEventListener('drop',e=>{
+  e.preventDefault();cdz.classList.remove('drag-over');
+  const f=e.dataTransfer.files[0];
+  if(f&&f.type.startsWith('image/')){
+    const r=new FileReader();r.onload=ev=>{
+      albumCoverPhoto=ev.target.result;
+      document.getElementById('coverPreviewImg').src=albumCoverPhoto;
+      document.getElementById('coverPreviewImg').style.display='block';
+      document.getElementById('coverPlaceholder').style.display='none';
+      updateCoverLabel();showToast('✅ Foto de portada cargada');
+    };r.readAsDataURL(f);
+  }
+});
+
+/* PAGES */
+const LAYOUT_COLS={'grid-1':1,'grid-2':2,'grid-3':3,'grid-2-1':2,'grid-1-2':2};
+const LAYOUT_NAMES={'grid-1':'1 foto','grid-2':'2 fotos','grid-3':'3 fotos','grid-2-1':'Grande+pequeña','grid-1-2':'Pequeña+grande'};
+
+function getPhotoCount(layout){
+  if(layout==='grid-1')return 1;
+  if(layout==='grid-2')return 2;
+  if(layout==='grid-3')return 3;
+  if(layout==='grid-2-1')return 2;
+  if(layout==='grid-1-2')return 2;
+  return 1;
+}
+
+function addPage(layout){
+  const n=getPhotoCount(layout);
+  const page={id:Date.now(),layout,caption:'',photos:new Array(n).fill(null)};
+  albumPages2.push(page);
+  renderPage(page,albumPages2.length-1);
+  document.getElementById('emptyPagesHint').style.display='none';
+  updatePageBadges();updateAlbumConfigPrice();
+  // scroll to new page
+  setTimeout(()=>{
+    const el=document.getElementById('pg-'+page.id);
+    if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },50);
+}
+
+function renderPage(page,idx){
+  const list=document.getElementById('albumPagesList');
+  const div=document.createElement('div');
+  div.className='page-card';div.id='pg-'+page.id;
+
+  const layouts=[
+    {k:'grid-1',label:'⬛'},
+    {k:'grid-2',label:'⬛⬛'},
+    {k:'grid-3',label:'⬛⬛⬛'},
+    {k:'grid-2-1',label:'▬▪'},
+    {k:'grid-1-2',label:'▪▬'},
+  ];
+
+  div.innerHTML=`
+    <div class="page-card-header">
+      <span class="page-badge">PÁG. ${idx+1}</span>
+      <input class="page-caption" type="text" placeholder="Escribe un pie de foto..." value="${page.caption}"
+        oninput="albumPages2.find(p=>p.id===${page.id}).caption=this.value">
+      <div class="page-layout-row">
+        ${layouts.map(l=>`<button class="page-layout-mini ${page.layout===l.k?'active':''}" title="${LAYOUT_NAMES[l.k]}"
+          onclick="changePgLayout(${page.id},'${l.k}',this)">${l.label}</button>`).join('')}
+      </div>
+      <button class="page-del-btn" onclick="deletePage(${page.id})" title="Eliminar página">✕</button>
+    </div>
+    <div class="page-card-body">
+      <div class="photo-grid ${page.layout}" id="pgslots-${page.id}"></div>
+    </div>`;
+  list.appendChild(div);
+  renderPageSlots(page);
+}
+
+function renderPageSlots(page){
+  const container=document.getElementById('pgslots-'+page.id);
+  if(!container)return;
+  container.className='photo-grid '+page.layout;
+  container.innerHTML='';
+  for(let i=0;i<page.photos.length;i++){
+    const slot=document.createElement('div');slot.className='photo-slot';
+    const hasPhoto=!!page.photos[i];
+    slot.innerHTML=`
+      <input type="file" accept="image/*" onchange="loadSlotPhoto(event,${page.id},${i})">
+      ${hasPhoto?`<img src="${page.photos[i]}" alt="">
+        <button class="slot-del show" onclick="removeSlotPhoto(event,${page.id},${i})">✕</button>`
+      :`<span class="slot-empty-icon">📷</span>
+        <span class="slot-empty-text">Toca para añadir foto</span>`}`;
+    container.appendChild(slot);
+  }
+}
+
+function loadSlotPhoto(e,pageId,slotIdx){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const page=albumPages2.find(p=>p.id===pageId);
+    if(!page)return;
+    page.photos[slotIdx]=ev.target.result;
+    renderPageSlots(page);
+    updatePageBadges();
+    showToast('✅ Foto añadida');
+  };r.readAsDataURL(f);
+}
+
+function removeSlotPhoto(e,pageId,slotIdx){
+  e.preventDefault();e.stopPropagation();
+  const page=albumPages2.find(p=>p.id===pageId);
+  if(!page)return;
+  page.photos[slotIdx]=null;
+  renderPageSlots(page);
+  updatePageBadges();
+}
+
+function changePgLayout(pageId,newLayout,btn){
+  const page=albumPages2.find(p=>p.id===pageId);if(!page)return;
+  const newCount=getPhotoCount(newLayout);
+  // keep existing photos, trim or extend
+  const oldPhotos=[...page.photos];
+  page.photos=new Array(newCount).fill(null).map((_,i)=>oldPhotos[i]||null);
+  page.layout=newLayout;
+  // update mini buttons
+  const header=btn.closest('.page-layout-row');
+  if(header)header.querySelectorAll('.page-layout-mini').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPageSlots(page);
+  updatePageBadges();
+}
+
+function deletePage(pageId){
+  albumPages2=albumPages2.filter(p=>p.id!==pageId);
+  const el=document.getElementById('pg-'+pageId);if(el)el.remove();
+  // re-number
+  document.querySelectorAll('.page-badge').forEach((b,i)=>b.textContent=`PÁG. ${i+1}`);
+  if(albumPages2.length===0)document.getElementById('emptyPagesHint').style.display='block';
+  updatePageBadges();updateAlbumConfigPrice();
+}
+
+function updatePageBadges(){
+  const totalPhotos=albumPages2.reduce((a,p)=>a+p.photos.filter(Boolean).length,0);
+  document.getElementById('pageCountBadge').textContent=`${albumPages2.length} página${albumPages2.length!==1?'s':''}`;
+  document.getElementById('photoCountBadge').textContent=`${totalPhotos} foto${totalPhotos!==1?'s':''}`;
+  updateAlbumConfigPrice();
+}
+
+/* REVIEW */
+function buildReview(){
+  const title=document.getElementById('albumTitle').value||'Mi álbum familiar';
+  const totalPhotos=albumPages2.reduce((a,p)=>a+p.photos.filter(Boolean).length,0);
+  const price=calcAlbumPrice();
+
+  document.getElementById('reviewTitle').textContent=title;
+  document.getElementById('rv-title').textContent=title;
+  document.getElementById('rv-cover').textContent=albumConfig.coverStyle;
+  document.getElementById('rv-format').textContent=albumConfig.albumFormat;
+  document.getElementById('rv-paper').textContent=albumConfig.albumPaper;
+  document.getElementById('rv-pages').textContent=albumPages2.length;
+  document.getElementById('rv-photos').textContent=totalPhotos;
+  document.getElementById('rv-price').textContent=price.toFixed(2).replace('.',',')+'€';
+
+  if(albumCoverPhoto){
+    document.getElementById('reviewCoverImg').src=albumCoverPhoto;
+    document.getElementById('reviewCoverImg').style.display='block';
+    document.getElementById('reviewNoCover').style.display='none';
+  } else {
+    document.getElementById('reviewCoverImg').style.display='none';
+    document.getElementById('reviewNoCover').style.display='flex';
+  }
+
+  // thumbs
+  const strip=document.getElementById('reviewThumbs');strip.innerHTML='';
+  albumPages2.forEach(p=>p.photos.forEach(ph=>{
+    if(ph){const img=document.createElement('img');img.src=ph;img.className='album-thumb';strip.appendChild(img);}
+  }));
+}
+
+function addAlbumToCart(){
+  const title=document.getElementById('albumTitle').value||'Mi álbum familiar';
+  const totalPhotos=albumPages2.reduce((a,p)=>a+p.photos.filter(Boolean).length,0);
+  if(totalPhotos===0){showToast('⚠️ Añade al menos una foto');goWzTab(2);return}
+  const price=calcAlbumPrice();
+  let thumb=albumCoverPhoto||'';
+  if(!thumb){for(const p of albumPages2){for(const ph of p.photos){if(ph){thumb=ph;break}}}};
+  const item={
+    id:Date.now(),
+    product:'Álbum Familiar',variant:title,
+    extra:`${albumPages2.length} págs · ${totalPhotos} fotos · ${albumConfig.coverStyle}`,
+    price,qty:1,thumb,
+    productImg:'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240">
+      <rect x="30" y="20" width="140" height="200" rx="6" fill="#4a6fa5"/>
+      <rect x="40" y="30" width="120" height="180" rx="4" fill="#e8f0fb"/>
+      <rect x="55" y="50" width="90" height="60" rx="3" fill="#c8d8f0"/>
+      <rect x="55" y="120" width="90" height="12" rx="2" fill="#b0c4e8"/>
+      <rect x="55" y="138" width="60" height="10" rx="2" fill="#b0c4e8"/></svg>`)
+  };
+  cart.push(item);renderCart();setStep(4);
+  showToast('📚 Álbum añadido al carrito');
+}
+
+/* ===== CART ===== */
+function addToCart(){
+  if(!selectedVariant)return;
+  const thumb=canvas.toDataURL();
+  const item={id:Date.now(),product:PRODUCTS[selectedProduct].name,variant:selectedVariant.name,extra:selectedVariant.extra,price:selectedVariant.price,qty:1,thumb,productImg:getProductImage(selectedVariant)};
+  cart.push(item);renderCart();setStep(4);
+  showToast('✅ '+item.product+' '+item.variant+' añadida');
+}
+
+function renderCart(){
+  const c=document.getElementById('cartItems');
+  const count=cart.reduce((a,i)=>a+i.qty,0);
+  document.getElementById('cartCount').textContent=count;
+  if(!cart.length){c.innerHTML=`<div class="empty-cart"><span class="empty-icon">🛍️</span>Tu carrito está vacío.<br>¡Diseña algo increíble!</div>`;document.getElementById('cartTotal').textContent='0,00€';return}
+  c.innerHTML='';let total=0;
+  cart.forEach(item=>{
+    total+=item.price*item.qty;
+    const div=document.createElement('div');div.className='cart-item';
+    div.innerHTML=`
+      <div class="cart-item-preview">
+        <img src="${item.productImg}" style="width:70%;height:70%;object-fit:contain;position:relative;z-index:1" alt="">
+        <img src="${item.thumb}" style="position:absolute;width:35%;height:35%;object-fit:contain;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2" alt="">
+      </div>
+      <div>
+        <div class="ci-name">${item.product}</div>
+        <div class="ci-variant">${item.variant}</div>
+        <div style="font-size:.7rem;color:var(--muted);margin-top:.1rem">${item.extra}</div>
+        <div class="ci-price">${(item.price*item.qty).toFixed(2)}€</div>
+        <div class="ci-controls">
+          <button class="qty-btn" onclick="changeQty(${item.id},-1)">−</button>
+          <span class="qty-num">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${item.id},1)">+</button>
+        </div>
+      </div>
+      <button class="remove-btn" onclick="removeItem(${item.id})">✕</button>`;
+    c.appendChild(div);
+  });
+  document.getElementById('cartTotal').textContent=total.toFixed(2).replace('.',',')+'€';
+}
+
+function changeQty(id,d){const i=cart.find(x=>x.id===id);if(i){i.qty=Math.max(1,i.qty+d);renderCart()}}
+function removeItem(id){cart=cart.filter(i=>i.id!==id);renderCart()}
+function toggleCart(){document.getElementById('cartSidebar').classList.toggle('open');document.getElementById('cartOverlay').classList.toggle('open')}
+
+function checkout(){
+  if(!cart.length){showToast('⚠️ El carrito está vacío');return}
+  const count=cart.reduce((a,i)=>a+i.qty,0);
+  const total=cart.reduce((a,i)=>a+i.price*i.qty,0);
+  document.getElementById('orderSummary').textContent=`${count} artículo${count>1?'s':''} por ${total.toFixed(2).replace('.',',')}€`;
+  document.getElementById('checkoutModal').classList.add('open');toggleCart();
+}
+
+function closeModal(){
+  document.getElementById('checkoutModal').classList.remove('open');
+  cart=[];renderCart();selectedProduct=null;selectedVariant=null;
+  document.querySelectorAll('.product-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('variant-section').style.display='none';
+  document.getElementById('design-section').style.display='none';
+  document.getElementById('album-section').style.display='none';
+  clearCanvas();setStep(1);
+  // reset album
+  albumPages2=[];albumCoverPhoto=null;
+  document.getElementById('albumPagesList').innerHTML='';
+  document.getElementById('albumTitle').value='';
+  document.getElementById('coverPreviewImg').style.display='none';
+  document.getElementById('coverPlaceholder').style.display='block';
+  document.getElementById('emptyPagesHint').style.display='block';
+  goWzTab(0);updatePageBadges();updateAlbumConfigPrice();
+}
+
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+renderCart();updateAlbumConfigPrice();
+</script>
+</body>
+</html>
